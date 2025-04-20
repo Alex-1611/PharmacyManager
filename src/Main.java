@@ -5,9 +5,6 @@ import java.util.*;
 import Services.PharmacyService;
 import Models.*;
 
-// All other classes remain the same (Person, Pharmacist, Customer, Product, Drug, etc.)
-// [... previous class implementations ...]
-
 public class Main {
     private static PharmacyService service;
     private static Scanner scanner;
@@ -170,7 +167,7 @@ public class Main {
         int customerId = getIntInput("Enter customer ID: ");
 
         System.out.println("\nAvailable Insurance Companies:");
-        // Display insurance companies
+
         service.displayAllInsuranceCompanies();
         int insuranceId = getIntInput("Enter insurance company ID: ");
 

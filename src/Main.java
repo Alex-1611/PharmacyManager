@@ -77,6 +77,7 @@ public class Main {
             System.out.println("1. Add New Pharmacist");
             System.out.println("2. Increase Pharmacist Salary");
             System.out.println("3. List All Pharmacists");
+            System.out.println("4. Delete Pharmacist");
             System.out.println("0. Back to Main Menu");
 
             int choice = getIntInput("Enter your choice: ");
@@ -91,6 +92,9 @@ public class Main {
                 case 3:
                     service.displayAllPharmacists();
                     break;
+                case 4:
+                    deletePharmacist();
+                    break;
                 case 0:
                     back = true;
                     break;
@@ -103,11 +107,15 @@ public class Main {
     private static void addPharmacist() {
         System.out.println("\nADD NEW PHARMACIST");
         String name = getStringInput("Enter name: ");
-        LocalDate dob = getDateInput("Enter date of birth (yyyy-MM-dd): ");
+        String dob = getStringInput("Enter date of birth (yyyy-MM-dd): ");
         double salary = getDoubleInput("Enter salary: ");
 
-        Pharmacist pharmacist = service.createPharmacist(name, dob, salary);
-        System.out.println("Pharmacist added successfully with ID: " + pharmacist.getId());
+        Pharmacist pharmacist = service.createPharmacist(name, LocalDate.parse(dob), salary);
+        if (pharmacist != null) {
+            System.out.println("Pharmacist added successfully with ID: " + pharmacist.getId());
+        } else {
+            System.out.println("Failed to add pharmacist.");
+        }
     }
 
     private static void increaseSalary() {
@@ -120,6 +128,14 @@ public class Main {
         System.out.println("Salary increased successfully.");
     }
 
+    private static void deletePharmacist() {
+        System.out.println("\nDELETE PHARMACIST");
+        service.displayAllPharmacists();
+        int id = getIntInput("Enter pharmacist ID to delete: ");
+        service.deletePharmacist(id);
+        System.out.println("Pharmacist deleted.");
+    }
+
     // CUSTOMER MENU
     private static void customerMenu() {
         boolean back = false;
@@ -129,6 +145,7 @@ public class Main {
             System.out.println("1. Add New Customer");
             System.out.println("2. Set Customer Insurance");
             System.out.println("3. List All Customers");
+            System.out.println("4. Delete Customer");
             System.out.println("0. Back to Main Menu");
 
             int choice = getIntInput("Enter your choice: ");
@@ -142,6 +159,9 @@ public class Main {
                     break;
                 case 3:
                     service.displayAllCustomers();
+                    break;
+                case 4:
+                    deleteCustomer();
                     break;
                 case 0:
                     back = true;
@@ -158,7 +178,11 @@ public class Main {
         LocalDate dob = getDateInput("Enter date of birth (yyyy-MM-dd): ");
 
         Customer customer = service.createCustomer(name, dob);
-        System.out.println("Customer added successfully with ID: " + customer.getId());
+        if (customer != null) {
+            System.out.println("Customer added successfully with ID: " + customer.getId());
+        } else {
+            System.out.println("Failed to add customer.");
+        }
     }
 
     private static void setCustomerInsurance() {
@@ -175,6 +199,14 @@ public class Main {
         System.out.println("Insurance set successfully.");
     }
 
+    private static void deleteCustomer() {
+        System.out.println("\nDELETE CUSTOMER");
+        service.displayAllCustomers();
+        int id = getIntInput("Enter customer ID to delete: ");
+        service.deleteCustomer(id);
+        System.out.println("Customer deleted.");
+    }
+
     // PRODUCT MENU
     private static void productMenu() {
         boolean back = false;
@@ -185,6 +217,7 @@ public class Main {
             System.out.println("2. Add New Supplement");
             System.out.println("3. Update Product Price");
             System.out.println("4. List All Products");
+            System.out.println("5. Delete Product");
             System.out.println("0. Back to Main Menu");
 
             int choice = getIntInput("Enter your choice: ");
@@ -201,6 +234,9 @@ public class Main {
                     break;
                 case 4:
                     service.displayAllProducts();
+                    break;
+                case 5:
+                    deleteProduct();
                     break;
                 case 0:
                     back = true;
@@ -249,6 +285,14 @@ public class Main {
 
         service.updateProductPrice(productId, newPrice);
         System.out.println("Price updated successfully.");
+    }
+
+    private static void deleteProduct() {
+        System.out.println("\nDELETE PRODUCT");
+        service.displayAllProducts();
+        int id = getIntInput("Enter product ID to delete: ");
+        service.deleteProduct(id);
+        System.out.println("Product deleted.");
     }
 
     // PRESCRIPTION MENU
@@ -512,6 +556,7 @@ public class Main {
             System.out.println("1. Add New Insurance Company");
             System.out.println("2. Add Drug to Insurance Coverage");
             System.out.println("3. List Insurance Companies");
+            System.out.println("4. Delete Insurance Company");
             System.out.println("0. Back to Main Menu");
 
             int choice = getIntInput("Enter your choice: ");
@@ -525,6 +570,9 @@ public class Main {
                     break;
                 case 3:
                     service.displayAllInsuranceCompanies();
+                    break;
+                case 4:
+                    deleteInsuranceCompany();
                     break;
                 case 0:
                     back = true;
@@ -540,7 +588,11 @@ public class Main {
         String name = getStringInput("Enter company name: ");
 
         InsuranceCompany company = service.createInsuranceCompany(name);
-        System.out.println("Insurance company added successfully with ID: " + company.getId());
+        if (company != null) {
+            System.out.println("Insurance company added successfully with ID: " + company.getId());
+        } else {
+            System.out.println("Failed to add insurance company.");
+        }
     }
 
     private static void addDrugToInsurance() {
@@ -553,6 +605,14 @@ public class Main {
 
         service.addDrugToInsurance(insuranceId, drugId);
         System.out.println("Drug added to insurance coverage successfully.");
+    }
+
+    private static void deleteInsuranceCompany() {
+        System.out.println("\nDELETE INSURANCE COMPANY");
+        service.displayAllInsuranceCompanies();
+        int id = getIntInput("Enter insurance company ID to delete: ");
+        service.deleteInsuranceCompany(id);
+        System.out.println("Insurance company deleted.");
     }
 
     // DISPLAY MENU

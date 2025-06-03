@@ -7,11 +7,14 @@ import Persistance.*;
 
 // Add import for AuditService
 import Util.AuditService;
+// Add import for DrugRepository
+import Persistance.DrugRepository;
 
 public class PharmacyService {
     private PharmacistRepository pharmacistRepository;
     private CustomerRepository customerRepository;
     private InsuranceCompanyRepository insuranceCompanyRepository;
+    private DrugRepository drugRepository; // Add DrugRepository
     private Map<Integer, Product> products;
     private Map<Integer, Bill> bills;
     private Inventory inventory;
@@ -21,9 +24,16 @@ public class PharmacyService {
         pharmacistRepository = PharmacistRepository.getInstance();
         customerRepository = CustomerRepository.getInstance();
         insuranceCompanyRepository = InsuranceCompanyRepository.getInstance();
+        drugRepository = DrugRepository.getInstance(); // Initialize DrugRepository
         products = new HashMap<>();
         bills = new HashMap<>();
         inventory = new Inventory();
+
+        // Load all drugs from DB into products map
+        for (Drug drug : drugRepository.getAllDrugs()) {
+            products.put(drug.getId(), drug);
+            nextId = Math.max(nextId, drug.getId() + 1);
+        }
     }
 
     // Pharmacist operations
@@ -69,9 +79,15 @@ public class PharmacyService {
     // Product operations
     public Drug createDrug(String name, double price, int requiredAge, boolean requiresPrescription, String condition) {
         AuditService.logAction("createDrug");
-        Drug drug = new Drug(nextId++, name, price, requiredAge, requiresPrescription, condition);
-        products.put(drug.getId(), drug);
-        return drug;
+        drugRepository.addDrug(name, price, requiredAge, requiresPrescription, condition);
+        // Fetch the latest drug from DB (assuming auto-increment id)
+        List<Drug> allDrugs = drugRepository.getAllDrugs();
+        Drug latestDrug = allDrugs.isEmpty() ? null : allDrugs.get(allDrugs.size() - 1);
+        if (latestDrug != null) {
+            products.put(latestDrug.getId(), latestDrug);
+            nextId = Math.max(nextId, latestDrug.getId() + 1);
+        }
+        return latestDrug;
     }
 
     public Supplement createSupplement(String name, double price, int requiredAge, List<String> ingredients) {
@@ -83,13 +99,26 @@ public class PharmacyService {
 
     public void updateProductPrice(int productId, double newPrice) {
         AuditService.logAction("updateProductPrice");
-        if (products.containsKey(productId)) {
-            products.get(productId).setPrice(newPrice);
+        Product product = products.get(productId);
+        if (product != null) {
+            product.setPrice(newPrice);
+            if (product instanceof Drug) {
+                drugRepository.updateDrugPrice(productId, newPrice);
+                // Refresh from DB
+                Drug updatedDrug = drugRepository.getDrugById(productId);
+                if (updatedDrug != null) {
+                    products.put(productId, updatedDrug);
+                }
+            }
         }
     }
 
     public void deleteProduct(int productId) {
         AuditService.logAction("deleteProduct");
+        Product product = products.get(productId);
+        if (product instanceof Drug) {
+            drugRepository.deleteDrug(productId);
+        }
         products.remove(productId);
     }
 
@@ -200,6 +229,10 @@ public class PharmacyService {
     public void displayAllProducts() {
         AuditService.logAction("displayAllProducts");
         System.out.println("\n=== Products ===");
+        // Refresh drugs from DB
+        for (Drug drug : drugRepository.getAllDrugs()) {
+            products.put(drug.getId(), drug);
+        }
         for (Product product : products.values()) {
             System.out.print("ID: " + product.getId() + ", Name: " + product.getName() +
                     ", Price: " + product.getPrice());
@@ -262,6 +295,10 @@ public class PharmacyService {
     public void displayAllDrugs() {
         AuditService.logAction("displayAllDrugs");
         System.out.println("\n=== Drugs ===");
+        // Refresh drugs from DB
+        for (Drug drug : drugRepository.getAllDrugs()) {
+            products.put(drug.getId(), drug);
+        }
         for (Product product : products.values()) {
             if (product instanceof Drug) {
                 Drug drug = (Drug) product;

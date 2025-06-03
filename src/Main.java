@@ -256,7 +256,11 @@ public class Main {
         String condition = getStringInput("Enter condition: ");
 
         Drug drug = service.createDrug(name, price, requiredAge, requiresPrescription, condition);
-        System.out.println("Drug added successfully with ID: " + drug.getId());
+        if (drug != null) {
+            System.out.println("Drug added successfully with ID: " + drug.getId());
+        } else {
+            System.out.println("Failed to add drug.");
+        }
     }
 
     private static void addSupplement() {
